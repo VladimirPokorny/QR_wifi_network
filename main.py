@@ -1,5 +1,6 @@
 import qrcode
 import sys
+from PIL import Image
 
 
 ssid = 'test'
@@ -20,6 +21,11 @@ def main(ssid: str, password: str, security: str, filename: str) -> None:
 
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(filename)
+
+    png_image = Image.open("qr_code.png")
+    png_image.save("qr_code.svg", "SVG")
+
+    print("QR code exported as SVG.")
 
 
 
