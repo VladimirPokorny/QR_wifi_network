@@ -1,36 +1,72 @@
 import qrcode
-import sys
-from PIL import Image
+# import sys
+from PIL import Image, ImageFont, ImageDraw
 
+# 200 x 200 px
 
-ssid = 'test'
-password = 'test'
+ssid = 'x' * 32
+password = 'x' * 32
 security = 'WPA2'
 filename = 'qr.png'
 
 
-def main(ssid: str, password: str, security: str, filename: str) -> None:
+def generate_wifi_qr(ssid: str, password: str, security: str, filename: str) -> None:
     qr = qrcode.QRCode(
         version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_Q,
-        box_size=20,
-        border=5,
+        error_correction=qrcode.constants.ERROR_CORRECT_M,
+        border=1,
     )
     qr.add_data(f'WIFI:T:{security};S:{ssid};P:{password};;')
-    qr.make(fit=True)
+
+    print(len(qr.get_matrix()[0]))
 
     img = qr.make_image(fill_color="black", back_color="white")
     img.save(filename)
 
-    png_image = Image.open("qr_code.png")
-    png_image.save("qr_code.svg", "SVG")
 
-    print("QR code exported as SVG.")
+def text_size(text: str, font_size: int) -> tuple:
+    """
+    Return width and height of text with given font size.
+
+    Parameters:
+        text (str): Text to measure
+        font_size (int): Font size of text
+
+    Returns:
+        tuple: Width and height of text
+    """
+    font = ImageFont.truetype('arial', font_size)
+    return font.getsize(text)
 
 
+def generate_text_wifi(ssid: str, password: str) -> None:
+    """
+    Generate picture 200 x 200 px with text SSID and password which fits the screen.
+    
+    Parameters:
+        ssid (str): SSID of the network
+        password (str): Password of the network
+    """
+    height = 200
+    width = 200
 
-if __name__ == '__main__':
-    arguments = sys.argv
+    font_size = 10
+    font = ImageFont.truetype('fonts/consola.ttf', font_size)
 
-    main(ssid, password, security, filename)
+    img = Image.new('RGB', (height, width), color=(255, 255, 255))
+    d = ImageDraw.Draw(img)
+
+    print(font.getsize('SSID')[0])
+
+    d.text((10, 10), 'SSID:', fill=(0, 0, 0))
+    d.text((10, 30), f'SSID: {ssid}', fill=(0, 0, 0))
+    d.text((10, 50), f'Password: {password}', fill=(0, 0, 0))
+    img.save('text.png')
+
+
+generate_wifi_qr(ssid, password, security, filename)
+
+generate_text_wifi(ssid, password)
+
+text_size('SSID', 10)
 
