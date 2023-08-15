@@ -3,9 +3,10 @@ import qrcode
 from PIL import Image, ImageFont, ImageDraw
 
 # 200 x 200 px
+# 800 x 480 px
 
-ssid = 'x' * 32
-password = 'x' * 32
+ssid = 'x' * 5
+password = 'x' * 12
 security = 'WPA2'
 filename = 'qr.png'
 
@@ -50,23 +51,56 @@ def generate_text_wifi(ssid: str, password: str) -> None:
     height = 200
     width = 200
 
-    font_size = 10
-    font = ImageFont.truetype('fonts/consola.ttf', font_size)
+    font_size = 50
+    description_font = ImageFont.truetype('fonts/consola.ttf', font_size)
+    value_font = ImageFont.truetype('fonts/consola.ttf', font_size)
 
-    img = Image.new('RGB', (height, width), color=(255, 255, 255))
+    img = Image.new('1', (height, width), color=(1))
     d = ImageDraw.Draw(img)
 
-    print(font.getsize('SSID')[0])
+    while description_font.getlength('Password:') > 0.75 * width:
+        font_size -= 0.25
+        description_font = ImageFont.truetype('fonts/consola.ttf', font_size)
+    
+    while value_font.getlength(password) > 0.75 * width:
+        font_size -= 0.25
+        value_font = ImageFont.truetype('fonts/consola.ttf', font_size)
+    
 
-    d.text((10, 10), 'SSID:', fill=(0, 0, 0))
-    d.text((10, 30), f'SSID: {ssid}', fill=(0, 0, 0))
-    d.text((10, 50), f'Password: {password}', fill=(0, 0, 0))
+    
+
+    d.text(xy=(100, 20), text='SSID:', fill=(0), font=description_font, anchor='mt')
+    d.text(xy=(100, 50), text=ssid, fill=(0), font=value_font, anchor='mt')    
+
+    d.text(xy=(100, 100), text='Password:', fill=(0), font=description_font, anchor='mt')
+    d.text(xy=(100, 130), text=password, fill=(0), font=value_font, anchor='mt')
+
+    # d.text((10, 30), f'SSID: {ssid}', fill=(0, 0, 0))
+    # d.text((10, 50), f'Password: {password}', fill=(0, 0, 0))
     img.save('text.png')
 
+
+def get_size(text: str, font) -> tuple:
+    """
+    Return width and height of text with given font size.
+
+    Parameters:
+        text (str): Text to measure
+        font (ImageFont): Font of text
+
+    Returns:
+        tuple: width and height of text
+    """
+    box = font.getbbox(text)
+
+    width = box[2] - box[0]
+    height = box[3] - box[1]
+
+    return (width, height)
 
 generate_wifi_qr(ssid, password, security, filename)
 
 generate_text_wifi(ssid, password)
 
-text_size('SSID', 10)
+# text_size('SSID', 10)
 
